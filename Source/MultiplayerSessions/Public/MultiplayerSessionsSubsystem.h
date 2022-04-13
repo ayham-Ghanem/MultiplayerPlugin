@@ -71,6 +71,10 @@ private:
 
 	TSharedPtr<FOnlineSessionSettings> LastSessionSettings;
 
+	TSharedPtr<FOnlineSessionSearch> LastSessionSearch;
+
+
+
 	//
 	// To add to the Online Session Interface delegates list.
 	// we'll bind our MultiplayerSessionsSubsystem internal callbacks to these
@@ -78,7 +82,7 @@ private:
 	FOnCreateSessionCompleteDelegate CreateSessionCompleteDelegate;
 	FDelegateHandle CreateSessionCompleteDelegateHandle;
 
-	FOnFindSessionsCompleteDelegate FindSessionCompleteDelegate;
+	FOnFindSessionsCompleteDelegate FindSessionsCompleteDelegate;
 	FDelegateHandle FindSessionsCompleteDelegateHandle;
 
 	FOnJoinSessionCompleteDelegate JoinSessionCompleteDelegate;
@@ -89,5 +93,6 @@ private:
 
 	FOnStartSessionCompleteDelegate StartSessionCompleteDelegate;
 	FDelegateHandle StartSessionCompleteDelegateHandle;
+
 
 };
