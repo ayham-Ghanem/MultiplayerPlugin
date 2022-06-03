@@ -9,8 +9,9 @@
 
 
 
-void UMenu::MenuSetup(int32 NumberOfPublicConnection ,FString TypeOfMatch)
+void UMenu::MenuSetup(int32 NumberOfPublicConnection ,FString TypeOfMatch, FString LobbyPath)
 {
+	PathToLobby = FString::Printf(TEXT("%s?listen"), *LobbyPath);
 	NumPublicConnections = NumberOfPublicConnection;
 	MatchType = TypeOfMatch;
 	AddToViewport();
@@ -111,7 +112,7 @@ void UMenu::OnCreateSession(bool bWasSuccessful)
 		UWorld* World = GetWorld();
 		if (World)
 		{
-			World->ServerTravel("/Game/ThirdPerson/Maps/Lobby?Listen");
+			World->ServerTravel(PathToLobby);
 		}
 	}
 	else {
@@ -121,18 +122,19 @@ void UMenu::OnCreateSession(bool bWasSuccessful)
 			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, FString::Printf(TEXT("Failed to Create Session")));
 
 		}
+		HostButton->SetIsEnabled(true);
 	}
 
 }
 
-void UMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& SessionResult, bool bWasSuccessful)
+void UMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful)
 {
 	if (MultiplayerSessionsSubsystem == nullptr)
 	{
 		return;
 	}
 
-	for(auto Result : SessionResult)
+	for(auto Result : SessionResults)
 	{
 		FString SettingsValue;
 		Result.Session.SessionSettings.Get(FName("MatchType"), SettingsValue);
@@ -142,6 +144,11 @@ void UMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& SessionResu
 			return;
 
 		}
+	}
+
+	if (!bWasSuccessful || SessionResults.Num() == 0) {
+		
+		JoinButton->SetIsEnabled(true);
 	}
 
 }
@@ -166,7 +173,10 @@ void UMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
 		}
 	}
 	
-
+	if (Result != EOnJoinSessionCompleteResult::Success) {
+		
+		JoinButton->SetIsEnabled(true);
+	}
 }
 
 
@@ -186,7 +196,7 @@ void UMenu::OnStartSession(bool bWasSuccessful)
 void UMenu::HostButtonClicked()
 {
 
-
+	HostButton->SetIsEnabled(false);
 	if(MultiplayerSessionsSubsystem)
 	{
 		MultiplayerSessionsSubsystem->CreateSession(NumPublicConnections, MatchType);
@@ -197,7 +207,7 @@ void UMenu::HostButtonClicked()
 
 void UMenu::JoinButtonClicked()
 {
-
+	JoinButton->SetIsEnabled(false);
 	if (GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Blue, FString::Printf(TEXT("Join Clicked")));
